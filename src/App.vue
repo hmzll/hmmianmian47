@@ -1,6 +1,7 @@
 <template>
   <div>
-    <router-link to="#">点我啊</router-link>
+    <router-link >点我啊</router-link>
+    <el-button>我是按钮</el-button>
   </div>
 </template>
 
