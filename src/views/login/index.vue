@@ -58,19 +58,34 @@
     </div>
     <!-- 右侧图片 -->
     <img src="./images/login_banner_ele.png" alt />
+
+    <!-- 注册对话框 -->
+    <reg></reg>
+    
   </div>
 </template>
 
 <script>
+// 1.导入组件
+import reg from './components/register.vue'
+
+// 2.注册组件
+
+// 3.在需要用组件的地方，写这个组件的标签
 export default {
+
+  components:{
+    reg
+  },
   data() {
     return {
+     
       // 跟表单双向绑定的数据
       form: {
         phone: "",
         password: "",
         code: "",
-        agree:false
+        agree: false
       },
       // 规则对象
       rules: {
@@ -83,14 +98,18 @@ export default {
 
         code: [{ required: true, message: "验证码不能为空", trigger: "blur" }],
 
-        agree:[
+        agree: [
           // 多选框没有失去焦点，只有值改变事件
           // 因为checkbox其实他不可能值为空，除非你强行赋值为空
           // 所以我们不能拿值是否为空来做验证了
           // { required:true, message:'必须勾选同意用户协议',trigger:"change"},
 
           // 只有值为true才满足条件，否则代表不匹配
-          { pattern:/true/, message:'必须勾选同意用户协议',trigger:"change"}
+          {
+            pattern: /true/,
+            message: "必须勾选同意用户协议",
+            trigger: "change"
+          }
         ]
       }
     };
