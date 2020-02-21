@@ -13,20 +13,25 @@
       </div>
 
       <!-- 表单 -->
-      <el-form label-width="43px">
-        <el-form-item>
-          <el-input placeholder="请输入手机号" prefix-icon="el-icon-user"></el-input>
+      <el-form ref="loginForm" :model="form" label-width="43px" :rules="rules">
+        <el-form-item prop="phone">
+          <el-input v-model="form.phone" placeholder="请输入手机号" prefix-icon="el-icon-user"></el-input>
         </el-form-item>
 
-        <el-form-item>
-          <el-input placeholder="请输入密码" show-password prefix-icon="el-icon-lock"></el-input>
+        <el-form-item prop="password">
+          <el-input
+            v-model="form.password"
+            placeholder="请输入密码"
+            show-password
+            prefix-icon="el-icon-lock"
+          ></el-input>
         </el-form-item>
 
-        <el-form-item>
+        <el-form-item prop="code">
           <el-row>
             <!-- 第一列。放的是输入框 -->
             <el-col :span="17">
-              <el-input placeholder="请输入验证码" prefix-icon="el-icon-key"></el-input>
+              <el-input v-model="form.code" placeholder="请输入验证码" prefix-icon="el-icon-key"></el-input>
             </el-col>
             <el-col :span="7">
               <img class="code" src="./images/login_code.png" alt />
@@ -34,16 +39,19 @@
           </el-row>
         </el-form-item>
 
-        <el-form-item>
-          <el-checkbox class="agree" v-model="checked">
-            我已阅读并同意
-            <el-link type="primary">用户协议</el-link>和
-            <el-link type="primary">隐私条款</el-link>
-          </el-checkbox>
+        <el-form-item prop="agree">
+          <div class="agree-box" style="display:flex;align-items:center;">
+            <el-checkbox v-model="form.agree" class="agree"></el-checkbox>
+            <span>
+              我已阅读并同意
+              <el-link type="primary">用户协议</el-link>和
+              <el-link type="primary">隐私条款</el-link>
+            </span>
+          </div>
         </el-form-item>
 
         <el-form-item>
-          <el-button class="box-btn" type="primary">登录</el-button>
+          <el-button class="box-btn" type="primary" @click="doLogin">登录</el-button>
           <el-button class="box-btn" type="primary">注册</el-button>
         </el-form-item>
       </el-form>
@@ -54,7 +62,52 @@
 </template>
 
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      // 跟表单双向绑定的数据
+      form: {
+        phone: "",
+        password: "",
+        code: "",
+        agree:false
+      },
+      // 规则对象
+      rules: {
+        // 真正的规则
+        phone: [{ required: true, message: "手机号不能为空", trigger: "blur" }],
+
+        password: [
+          { required: true, message: "密码不能为空", trigger: "blur" }
+        ],
+
+        code: [{ required: true, message: "验证码不能为空", trigger: "blur" }],
+
+        agree:[
+          // 多选框没有失去焦点，只有值改变事件
+          // 因为checkbox其实他不可能值为空，除非你强行赋值为空
+          // 所以我们不能拿值是否为空来做验证了
+          // { required:true, message:'必须勾选同意用户协议',trigger:"change"},
+
+          // 只有值为true才满足条件，否则代表不匹配
+          { pattern:/true/, message:'必须勾选同意用户协议',trigger:"change"}
+        ]
+      }
+    };
+  },
+
+  methods: {
+    doLogin() {
+      // 找到表单对象，调用validate方法
+      this.$refs.loginForm.validate(v => {
+        if (v) {
+          alert("全部通过");
+          // 正儿八经发请求比较合理
+        }
+      });
+    }
+  }
+};
 </script>
 
 <style lang="less">
@@ -116,6 +169,7 @@ export default {};
     .code {
       width: 100%;
       height: 42px;
+      vertical-align: top;
     }
 
     // 可加可不加看自己习惯
@@ -128,11 +182,10 @@ export default {};
       }
     }
 
-    .box-btn{
+    .box-btn {
       width: 100%;
 
-      &:nth-child(2){
-
+      &:nth-child(2) {
         margin-left: 0;
         margin-top: 26px;
       }
