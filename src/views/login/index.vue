@@ -34,7 +34,7 @@
               <el-input v-model="form.code" placeholder="请输入验证码" prefix-icon="el-icon-key"></el-input>
             </el-col>
             <el-col :span="7">
-              <img class="code" src="./images/login_code.png" alt />
+              <img @click="changeImgCode" class="code" :src="imgUrl" alt />
             </el-col>
           </el-row>
         </el-form-item>
@@ -61,25 +61,27 @@
 
     <!-- 注册对话框 -->
     <reg ref="reg"></reg>
-    
   </div>
 </template>
 
 <script>
 // 1.导入组件
-import reg from './components/register.vue'
+import reg from "./components/register.vue";
+import { login } from '@/api/login.js'
+import { setToken } from '@/utilis/token.js'
 
 // 2.注册组件
 
 // 3.在需要用组件的地方，写这个组件的标签
 export default {
-
-  components:{
+  components: {
     reg
   },
   data() {
     return {
-     
+      // 图片地址
+      imgUrl: process.env.VUE_APP_URL + "/captcha?type=login",
+
       // 跟表单双向绑定的数据
       form: {
         phone: "",
@@ -116,21 +118,44 @@ export default {
   },
 
   methods: {
+    // 点击图片切换验证码的点击事件
+    changeImgCode() {
+      this.imgUrl = process.env.VUE_APP_URL + "/captcha?type=login&sb=" + Date.now();
+    },
 
     // 登录的点击事件
     doLogin() {
       // 找到表单对象，调用validate方法
       this.$refs.loginForm.validate(v => {
         if (v) {
-          alert("全部通过");
+         
           // 正儿八经发请求比较合理
+          login({
+            phone: this.form.phone,
+            password:this.form.password,
+            code: this.form.code
+          })
+          .then( res => {
+
+            if(res.data.code == 200){
+
+              //把token存起来
+              // window.localStorage.setItem('token',res.data.data.token)
+              setToken(res.data.data.token)
+              this.$message.success('登录成功')
+              this.$router.push('/index');
+            }else{
+
+              this.$message.error(res.data.message)
+            }
+            
+          })
         }
       });
     },
 
     // 注册的点击事件
-    showReg(){
-
+    showReg() {
       this.$refs.reg.dialogFormVisible = true;
     }
   }
