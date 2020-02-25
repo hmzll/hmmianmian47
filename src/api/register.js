@@ -3,6 +3,8 @@
 // 导入axios
 import axios from 'axios'
 
+window.console.log('register被执行了')
+
 // 准备封装请求的方法
 
 // 获取手机验证码

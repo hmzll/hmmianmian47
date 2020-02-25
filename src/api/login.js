@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+window.console.log('login.js被执行了')
+
 // 暴露一个登录的方法出去
 export function login(data) {
 
