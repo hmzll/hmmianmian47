@@ -77,6 +77,7 @@ export default {
   components: {
     reg
   },
+ 
   data() {
     return {
       // 图片地址

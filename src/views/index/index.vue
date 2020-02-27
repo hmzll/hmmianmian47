@@ -4,14 +4,17 @@
       <!-- 左边的部分 -->
       <div class="left">
         <!-- 字体图标 -->
-        <i @click="isCollapse = !isCollapse" :class="isCollapse ?  'el-icon-s-unfold' : 'el-icon-s-fold' "></i>
+        <i
+          @click="isCollapse = !isCollapse"
+          :class="isCollapse ?  'el-icon-s-unfold' : 'el-icon-s-fold' "
+        ></i>
         <img src="./images/logo.png" alt />
         <span>黑马面面</span>
       </div>
       <!-- 右边的部分 -->
       <div class="right">
-        <img :src="avatar" alt />
-        <span class="name">{{ username }}，你好</span>
+        <img :src="$store.state.avatar" alt />
+        <span class="name">{{ $store.state.username }}，你好</span>
         <el-button @click="doLogout" type="primary" size="mini">退出</el-button>
       </div>
     </el-header>
@@ -22,7 +25,7 @@
         <!-- 
           router属性为true，代表启用路由模式，效果就是点击菜单会进行路由跳转
           以被点击的菜单的index属性作为路径跳转
-         -->
+        -->
         <el-menu router :collapse="isCollapse" default-active="1" class="el-menu-vertical-demo">
           <el-menu-item index="/index/chart">
             <i class="el-icon-pie-chart"></i>
@@ -51,22 +54,19 @@
         </el-menu>
       </el-aside>
 
-
       <el-main class="my-main">
         <!-- 子路由的路由出口 -->
         <router-view></router-view>
       </el-main>
-
-
     </el-container>
   </el-container>
 </template>
 
 <script>
 // 导入接口
-import { info, logout } from "@/api/index.js";
+import {  logout } from "@/api/index.js";
 // 导入操作token的工具
-import { removeToken } from "@/utilis/token.js";
+import { removeToken, getToken } from "@/utilis/token.js";
 
 export default {
   data() {
@@ -90,6 +90,10 @@ export default {
           logout().then(() => {
             this.$message.success("退出成功！");
             removeToken();
+            // 还要清空vuex，传入空字符串就代表把username的值赋值为空
+            // 赋值为空就是清空了
+            this.$store.commit('changeUsername','')
+            this.$store.commit('changeAvatar','')
             // 跳转到登录页面
             this.$router.push("/login");
           });
@@ -103,17 +107,35 @@ export default {
     }
   },
 
+  beforeCreate() {
+
+    // 如果得到null，代表没有token，也就是没有登录
+    if (getToken() == null) {
+      this.$message.error("请先登录！");
+      this.$router.push("/login");
+    }
+  },
+
   created() {
-    console.log('index.vue进来了');
     
-    // 调用获取用户信息的接口
-    info().then(res => {
-      // console.log(res);
-      this.username = res.data.data.username;
-      // 记得在前面还要拼接基地址，因为返回的头像路径不完整，要拼接
-      // 还要拼接/，不然就连在一起了
-      this.avatar = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
-    });
+    // // 调用获取用户信息的接口
+    // // 带入token给服务器请求
+    // // ajax是异步请求：异步的请求要等同步任务执行完毕才执行
+    // info().then(res => {
+    //   if (res.data.code == 200) {
+    //     this.username = res.data.data.username;
+    //     // 记得在前面还要拼接基地址，因为返回的头像路径不完整，要拼接
+    //     // 还要拼接/，不然就连在一起了
+    //     this.avatar = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
+
+    //   }else if( res.data.code == 206){ // 如果token有误
+
+    //     this.$message.error('登录状态异常，请重新登录就行')
+    //     // 把token删掉
+    //     removeToken();
+    //     this.$router.push('/login')
+    //   }
+    // });
   }
 };
 </script>
