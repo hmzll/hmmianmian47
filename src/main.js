@@ -15,6 +15,11 @@ import router from './router/index'
 // 导入vuex对象
 import store from './store/index'
 
+// 导入全局过滤器
+// 我们这个文件只需要保证能够执行里面的代码就行了
+// 所以就只是简单导入
+import '@/filters/filters.js'
+
 // 挂载到Vue实例里
 new Vue({
   render: h => h(App),
