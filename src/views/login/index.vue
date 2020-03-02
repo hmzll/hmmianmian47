@@ -143,7 +143,9 @@ export default {
               //把token存起来
               // window.localStorage.setItem('token',res.data.data.token)
               setToken(res.data.data.token)
-              this.$message.success('登录成功')
+              // 在登录这里就提示了登录成功
+              // this.$message.success('登录成功')
+              // 提示后去做路由跳转了（所以后面会被导航守卫拦截下来）
               this.$router.push('/index');
             }else{
 

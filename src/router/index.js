@@ -19,33 +19,26 @@ Vue.use(VueRouter)
 // 准备组件
 import login from "../views/login/index.vue"
 import index from '../views/index/index.vue'
-// 导入组件
-import user from '../views/index/user/user.vue'
-import chart from '../views/index/chart/chart.vue'
-import business from '../views/index/business/business.vue'
-import question from '../views/index/question/question.vue'
-import subject from '../views/index/subject/subject.vue'
 
-
+// 导入子路由规则
+import children from './childrenRoutes.js'
 
 
 // 设置路由规则
 const routes = [
-  { path: "/login", component: login, meta: { title: '登录' } },
+
+  {
+    path: "/login",
+    component: login,
+    meta: { title: '登录', roles: ['超级管理员', '管理员', '老师', '学生'] }
+  },
   { path: "/", redirect: '/login' },
 
   {
     path: "/index",
     component: index,
-    meta: { title: '首页' },
-    children: [
-      // 子路由一般不加/
-      { path: "user", component: user, meta: { title: '用户列表' } },
-      { path: "chart", component: chart, meta: { title: '数据概览' } },
-      { path: "business", component: business, meta: { title: '企业列表' } },
-      { path: "question", component: question, meta: { title: '题库列表' } },
-      { path: "subject", component: subject, meta: { title: '学科列表' } },
-    ]
+    meta: { title: '首页', roles: ['超级管理员', '管理员', '老师', '学生'] },
+    children
   },
 
 ]
@@ -89,14 +82,50 @@ router.beforeEach((to, from, next) => {
 
       if (res.data.code == 200) {
 
-        // console.log(res);
-        
-        // 把服务器返回的用户名取出来存到vuex
-        store.commit('changeUsername',res.data.data.username);
-        store.commit('changeAvatar', process.env.VUE_APP_URL + '/' + res.data.data.avatar);
+        console.log(res);
 
-        //代表token是对的，那么直接放行
-        next()
+        // 如果是启用的就放行
+        if (res.data.data.status == 1) {
+
+          // 把服务器返回的用户名取出来存到vuex
+          store.commit('changeUsername', res.data.data.username);
+          store.commit('changeAvatar', process.env.VUE_APP_URL + '/' + res.data.data.avatar);
+          store.commit('changeRole',res.data.data.role)
+          
+          // 从登录跳过来的，才提示登录成功
+          if(from.path == '/login'){
+
+            Message.success('登录成功')
+          }
+          //代表token是对的，那么直接放行
+
+          //就算账户是启用，也不能无条件放行
+          //因为还要判断下，你这个账号有没有权限去访问将要去的页面
+          //to.meta.roles可以得到这个要去的页面哪些角色可以访问
+          //然后我们要判断当前登录的用户的角色是不是在这些角色里面
+          // console.log(to);
+
+          // 判断一个数组是否包含一个元素，包含得到true，不包含得到false
+          // 在判断要去的页面可以访问的角色里，是否包含我当前登录的用户的角色
+          
+          if (to.meta.roles.includes(res.data.data.role)) {
+            next()
+          } else {
+
+            //代表没有权限访问，就从哪来的就回到哪
+            Message.warning('该页面，你无权访问！')
+            NProgress.done();
+            next(from.path)
+          }
+
+
+        } else {
+
+          //代表是禁用的
+          Message.warning('账号被禁用，请与管理员联系')
+          NProgress.done();
+          next('/login')
+        }
 
       } else {
 
