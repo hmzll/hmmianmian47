@@ -34,7 +34,7 @@
         <template v-for="(item,index) in childrenRoutes">
          
           <el-menu-item  :key="index" :index="'/index/' + item.path" v-if="item.meta.roles.includes($store.state.role)">
-            <i class="el-icon-pie-chart"></i>
+            <i :class="item.meta.icon"></i>
             <span slot="title">{{ item.meta.title }}</span>
           </el-menu-item>
 
