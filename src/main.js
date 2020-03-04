@@ -9,6 +9,13 @@ Vue.use(ElementUI)
 // 导入样式直接import 路径就可以了
 import "./style/base.css"
 
+// 导入组件
+import subjectSelect from './components/subjectSelect.vue'
+import businessSelect from './components/businessSelect.vue'
+// 注册全局组件
+Vue.component('subjectSelect',subjectSelect)
+Vue.component('businessSelect',businessSelect)
+
 
 // 导入路由对象，默认优先会找js文件
 import router from './router/index'
